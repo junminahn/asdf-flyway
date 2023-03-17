@@ -21,7 +21,10 @@ jobs:
       uses: asdf-vm/actions/setup@v2
 
     - name: Move flyway plugin to asdf plugins dir
-      run: cp -r flyway ${ASDF_DIR}/plugins
+      run: |
+        ls -al ${ASDF_DIR}/plugins
+        cp -r flyway ${ASDF_DIR}/plugins
+        ls -al ${ASDF_DIR}/plugins
 
     - name: Run flyway plugin tests
       run: |
