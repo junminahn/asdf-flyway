@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-exec shfmt --write --indent 2 .
+exec shfmt --diff --indent 2 .
