@@ -25,6 +25,7 @@ jobs:
 
     - name: Run flyway plugin tests
       run: |
+        ls -al ${ASDF_DIR}/plugins/
         echo "Trying to list all versions of flyway"
         asdf list all flyway
         echo "Trying to install flyway 3.0"
