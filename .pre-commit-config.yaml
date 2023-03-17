@@ -5,7 +5,7 @@ repos:
   - id: check-added-large-files
   - id: check-case-conflict
   - id: check-executables-have-shebangs
-    files: \.sh
+    files: \.bash
   - id: check-json
   - id: check-vcs-permalinks
   - id: check-yaml
@@ -26,5 +26,5 @@ repos:
   hooks:
   - id: check-sh
     name: check bash scripts' formats
-    entry: ./scripts/shfmt-diff.sh
+    entry: ./scripts/shfmt-diff.bash
     language: script

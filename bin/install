@@ -7,7 +7,7 @@ set -euo pipefail
 pwd="$(dirname "$0")"
 
 # shellcheck disable=SC1091
-source "$pwd/lib"
+source "$pwd/../lib/constants.bash"
 
 install_tool() {
   local version="$1"
