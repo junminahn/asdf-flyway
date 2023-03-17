@@ -14,8 +14,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        path: flyway
 
     - name: Install asdf
       uses: asdf-vm/actions/setup@v2
@@ -23,13 +21,10 @@ jobs:
     - name: Move flyway plugin to asdf plugins dir
       run: |
         mkdir -p ${ASDF_DIR}/plugins
-        ls -al ${ASDF_DIR}/plugins
-        cp -r flyway ${ASDF_DIR}/plugins
-        ls -al ${ASDF_DIR}/plugins
+        cp -r . ${ASDF_DIR}/plugins/flyway
 
     - name: Run flyway plugin tests
       run: |
-        ls -al ${ASDF_DIR}/plugins
         echo "Trying to list all versions of flyway"
         asdf list all flyway
         echo "Trying to install flyway 3.0"
