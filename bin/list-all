@@ -8,10 +8,17 @@ source "$pwd/lib"
 
 cmd="curl -s $RELEASES_DIRECTORY"
 
+sort_versions() {
+    sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
+        LC_ALL=C sort -V | cut -d ' ' -f 2
+}
+
 versions=$(
     eval "$cmd" |
         grep -o 'title="[0-9][^"]*/"' |
-        sed 's/title="//;s/"$//;s#/\.$##;s#/$##'
+        sed 's/title="//;s/"$//;s#/\.$##;s#/$##' |
+        sort_versions |
+        xargs
 )
 
 echo "$versions"
