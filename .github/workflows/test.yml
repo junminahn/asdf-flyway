@@ -17,8 +17,8 @@ jobs:
       with:
         path: flyway
 
-    - name: Install asdf tools
-      uses: junminahn/actions/asdf-tools@v0.2.0
+    - name: Install asdf
+      uses: asdf-vm/actions/setup@v2
 
     - name: Move flyway plugin to asdf plugins dir
       run: mv flyway ${ASDF_DIR}/plugins/
