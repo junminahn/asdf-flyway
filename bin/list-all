@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+pwd="$(dirname "$0")"
+
+# shellcheck disable=SC1091
+source "$pwd/lib"
+
+cmd="curl -s $RELEASES_DIRECTORY"
+
+versions=$(
+    eval "$cmd" |
+        grep -o 'title="[0-9][^"]*/"' |
+        sed 's/title="//;s/"$//;s#/\.$##;s#/$##'
+)
+
+echo "$versions"
