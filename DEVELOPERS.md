@@ -13,7 +13,7 @@ git checkout <branch-name>
 ### Install the local plugin
 
 ```bash
-asdf plugin remove flyway
+asdf plugin remove flyway  # before you proceed, you might want to back up ~/.asdf/plugins/flyway
 asdf plugin add flyway "$(pwd)"  # must be the asdf-flyway git directory
 ```
 
