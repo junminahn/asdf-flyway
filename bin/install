@@ -57,7 +57,9 @@ install_tool() {
     mkdir -p "$bin_install_path"
 
     if [[ "$fileext" == ".zip" ]]; then
-      unzip -q "$tempfile" -d "$bin_install_path" --strip-components=1
+      local extract_dir="$tempdir/extracted"
+      unzip -q "$tempfile" -d "$extract_dir"
+      mv "$extract_dir"/*/* "$bin_install_path/"
     else
       tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
     fi
