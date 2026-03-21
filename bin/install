@@ -8,6 +8,7 @@ pwd="$(dirname "$0")"
 
 # shellcheck disable=SC1091
 source "$pwd/../lib/constants.bash"
+# shellcheck disable=SC1091
 source "$pwd/../lib/versions.bash"
 
 install_tool() {
@@ -15,61 +16,41 @@ install_tool() {
   local install_path="$2"
   local bin_install_path="$install_path/bin"
   local os=""
-  local fileext=".tar.gz"
   local platform=""
   local basefile="flyway-commandline-$version"
-  local tempdir=""
+  local base_url=""
   local filename=""
   local tempfile=""
-  local download_url=""
-  local use_github="false"
 
   os=$(uname -s)
 
   if [[ "$os" == "Darwin" ]]; then
     platform="macosx-x64"
-    tempdir=$(mktemp -dt asdf-flyway.XXXX)
   else
     platform="linux-x64"
-    tempdir=$(mktemp -d asdf-flyway.XXXX)
   fi
 
-  if ! compare_versions "$version" "$FLYWAY_MAVEN_CUTOFF"; then
-    use_github="true"
-  fi
+  tempdir=$(mktemp -dt asdf-flyway.XXXX)
+  trap 'rm -rf "$tempdir"' EXIT
 
-  if [[ "$use_github" == "true" ]]; then
-    download_url="$GITHUB_RELEASES_BASE/flyway-$version"
-    filename="${basefile}-${platform}${fileext}"
-    tempfile="${tempdir}/${filename}"
-
-    echo "download_url: $download_url/$filename"
-
-    if ! curl -sL -o /dev/null -w "%{http_code}" "$download_url/$filename" | grep -q "200"; then
-      filename="${basefile}${fileext}"
-    fi
-
-    curl -L "$download_url/$filename" -o "$tempfile"
-    mkdir -p "$bin_install_path"
-    tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
+  if compare_versions "$version" "$FLYWAY_MAVEN_CUTOFF"; then
+    base_url="$RELEASES_DIRECTORY$version/"
   else
-    local basedir="$RELEASES_DIRECTORY$version/"
-    filename="${basefile}-${platform}${fileext}"
-    tempfile="${tempdir}/${filename}"
-
-    echo "download_url: $basedir$filename"
-
-    if ! curl -sL -o /dev/null -w "%{http_code}" "$basedir$filename" | grep -q "200"; then
-      filename="${basefile}${fileext}"
-    fi
-
-    download_url="$basedir$filename"
-    curl -L "$download_url" -o "$tempfile"
-    mkdir -p "$bin_install_path"
-    tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
+    base_url="$GITHUB_RELEASES_BASE/flyway-$version/"
   fi
 
-  rm -rf "$tempdir"
+  filename="${basefile}-${platform}.tar.gz"
+  tempfile="${tempdir}/${filename}"
+
+  echo "download_url: $base_url$filename"
+
+  if ! curl -sL -o /dev/null -w "%{http_code}" "$base_url$filename" | grep -q "200"; then
+    filename="${basefile}.tar.gz"
+  fi
+
+  curl -fL "$base_url$filename" -o "$tempfile"
+  mkdir -p "$bin_install_path"
+  tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
 }
 
 install_tool "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
