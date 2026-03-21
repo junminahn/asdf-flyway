@@ -16,7 +16,6 @@ install_tool() {
   local bin_install_path="$install_path/bin"
   local os=""
   local platform=""
-  local fileext=".tar.gz"
   local basefile="flyway-commandline-$version"
   local tempdir=""
   local filename=""
@@ -29,12 +28,8 @@ install_tool() {
   if [[ "$os" == "Darwin" ]]; then
     platform="macosx-x64"
     tempdir=$(mktemp -dt asdf-flyway.XXXX)
-  elif [[ "$os" == "Linux" ]]; then
-    platform="linux-x64"
-    tempdir=$(mktemp -d asdf-flyway.XXXX)
   else
-    platform="windows-x64"
-    fileext=".zip"
+    platform="linux-x64"
     tempdir=$(mktemp -d asdf-flyway.XXXX)
   fi
 
@@ -44,34 +39,27 @@ install_tool() {
 
   if [[ "$use_github" == "true" ]]; then
     download_url="$GITHUB_RELEASES_BASE/flyway-$version"
-    filename="${basefile}-${platform}${fileext}"
+    filename="${basefile}-${platform}.tar.gz"
     tempfile="${tempdir}/${filename}"
 
     echo "download_url: $download_url/$filename"
 
     if ! curl -sL -o /dev/null -w "%{http_code}" "$download_url/$filename" | grep -q "200"; then
-      filename="${basefile}${fileext}"
+      filename="${basefile}.tar.gz"
     fi
 
     curl -L "$download_url/$filename" -o "$tempfile"
     mkdir -p "$bin_install_path"
-
-    if [[ "$fileext" == ".zip" ]]; then
-      local extract_dir="$tempdir/extracted"
-      unzip -q "$tempfile" -d "$extract_dir"
-      mv "$extract_dir"/*/* "$bin_install_path/"
-    else
-      tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
-    fi
+    tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
   else
     local basedir="$RELEASES_DIRECTORY$version/"
-    filename="${basefile}-${platform}${fileext}"
+    filename="${basefile}-${platform}.tar.gz"
     tempfile="${tempdir}/${filename}"
 
     echo "download_url: $basedir$filename"
 
     if ! curl -sL -o /dev/null -w "%{http_code}" "$basedir$filename" | grep -q "200"; then
-      filename="${basefile}${fileext}"
+      filename="${basefile}.tar.gz"
     fi
 
     download_url="$basedir$filename"
