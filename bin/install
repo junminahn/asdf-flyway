@@ -8,42 +8,76 @@ pwd="$(dirname "$0")"
 
 # shellcheck disable=SC1091
 source "$pwd/../lib/constants.bash"
+source "$pwd/../lib/versions.bash"
 
 install_tool() {
   local version="$1"
   local install_path="$2"
   local bin_install_path="$install_path/bin"
   local os=""
+  local platform=""
   local fileext=".tar.gz"
-  local basedir="$RELEASES_DIRECTORY$version/"
   local basefile="flyway-commandline-$version"
   local tempdir=""
   local filename=""
   local tempfile=""
   local download_url=""
+  local use_github="false"
 
-  os=$(uname -s) #Linux | Darwin
+  os=$(uname -s)
 
   if [[ "$os" == "Darwin" ]]; then
-    filename="$basefile-macosx-x64$fileext"
+    platform="macosx-x64"
     tempdir=$(mktemp -dt asdf-flyway.XXXX)
+  elif [[ "$os" == "Linux" ]]; then
+    platform="linux-x64"
+    tempdir=$(mktemp -d asdf-flyway.XXXX)
   else
-    filename="$basefile-linux-x64$fileext"
+    platform="windows-x64"
+    fileext=".zip"
     tempdir=$(mktemp -d asdf-flyway.XXXX)
   fi
 
-  if ! curl -I "$basedir$filename" >/dev/null 2>&1 || curl -s -I -o /tmp/curl_output "$basedir$filename" && ! grep -q '^HTTP/.* 200' /tmp/curl_output; then
-    filename="$basefile$fileext"
+  if ! compare_versions "$version" "$FLYWAY_MAVEN_CUTOFF"; then
+    use_github="true"
   fi
 
-  download_url="$basedir$filename"
-  tempfile="${tempdir}/${filename}"
+  if [[ "$use_github" == "true" ]]; then
+    download_url="$GITHUB_RELEASES_BASE/flyway-$version"
+    filename="${basefile}-${platform}${fileext}"
+    tempfile="${tempdir}/${filename}"
 
-  echo "download_url: $download_url"
+    echo "download_url: $download_url/$filename"
 
-  curl -L "$download_url" -o "$tempfile"
-  mkdir -p "$bin_install_path"
-  tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
+    if ! curl -sL -o /dev/null -w "%{http_code}" "$download_url/$filename" | grep -q "200"; then
+      filename="${basefile}${fileext}"
+    fi
+
+    curl -L "$download_url/$filename" -o "$tempfile"
+    mkdir -p "$bin_install_path"
+
+    if [[ "$fileext" == ".zip" ]]; then
+      unzip -q "$tempfile" -d "$bin_install_path" --strip-components=1
+    else
+      tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
+    fi
+  else
+    local basedir="$RELEASES_DIRECTORY$version/"
+    filename="${basefile}-${platform}${fileext}"
+    tempfile="${tempdir}/${filename}"
+
+    echo "download_url: $basedir$filename"
+
+    if ! curl -sL -o /dev/null -w "%{http_code}" "$basedir$filename" | grep -q "200"; then
+      filename="${basefile}${fileext}"
+    fi
+
+    download_url="$basedir$filename"
+    curl -L "$download_url" -o "$tempfile"
+    mkdir -p "$bin_install_path"
+    tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
+  fi
+
   rm -rf "$tempdir"
 }
 

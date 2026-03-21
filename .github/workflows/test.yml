@@ -36,6 +36,9 @@ jobs:
         echo "Trying to install flyway 9.9.0"
         asdf install flyway 9.9.0
         asdf list flyway | grep 9.9.0
+        echo "Trying to install flyway 11.11.2  (uses GitHub Releases starting from this one)"
+        asdf install flyway 11.11.2
+        asdf list flyway | grep 11.11.2
 
     - uses: asdf-vm/actions/plugin-test@v2
       with:

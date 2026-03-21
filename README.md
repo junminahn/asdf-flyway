@@ -33,6 +33,21 @@ flyway --version
 
 Please check [asdf](https://github.com/asdf-vm/asdf) for more details.
 
+# Download Sources
+
+This plugin downloads Flyway binaries from different sources depending on the version:
+
+| Version  | Source |
+|----------|--------|
+| ≤ 11.8.2 | [Maven Central](https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/) |
+| > 11.8.2 (starting from 11.11.2) | [GitHub Releases](https://github.com/flyway/flyway/releases) |
+
+This is due to a change in Flyway's distribution strategy starting from version 11.11.2.
+
+# Development
+
+See [DEVELOPERS.md](DEVELOPERS.md) for testing and development instructions.
+
 # License
 
 See [LICENSE](LICENSE) ©[Junmin Ahn](https://github.com/junminahn/)
