@@ -15,6 +15,7 @@ install_tool() {
   local install_path="$2"
   local bin_install_path="$install_path/bin"
   local os=""
+  local fileext=".tar.gz"
   local platform=""
   local basefile="flyway-commandline-$version"
   local tempdir=""
@@ -39,13 +40,13 @@ install_tool() {
 
   if [[ "$use_github" == "true" ]]; then
     download_url="$GITHUB_RELEASES_BASE/flyway-$version"
-    filename="${basefile}-${platform}.tar.gz"
+    filename="${basefile}-${platform}${fileext}"
     tempfile="${tempdir}/${filename}"
 
     echo "download_url: $download_url/$filename"
 
     if ! curl -sL -o /dev/null -w "%{http_code}" "$download_url/$filename" | grep -q "200"; then
-      filename="${basefile}.tar.gz"
+      filename="${basefile}${fileext}"
     fi
 
     curl -L "$download_url/$filename" -o "$tempfile"
@@ -53,13 +54,13 @@ install_tool() {
     tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
   else
     local basedir="$RELEASES_DIRECTORY$version/"
-    filename="${basefile}-${platform}.tar.gz"
+    filename="${basefile}-${platform}${fileext}"
     tempfile="${tempdir}/${filename}"
 
     echo "download_url: $basedir$filename"
 
     if ! curl -sL -o /dev/null -w "%{http_code}" "$basedir$filename" | grep -q "200"; then
-      filename="${basefile}.tar.gz"
+      filename="${basefile}${fileext}"
     fi
 
     download_url="$basedir$filename"
