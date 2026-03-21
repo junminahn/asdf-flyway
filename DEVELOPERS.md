@@ -7,7 +7,7 @@
 ```bash
 git clone https://github.com/junminahn/asdf-flyway.git
 cd asdf-flyway
-git checkout -b <branch-name>
+git checkout <branch-name>
 ```
 
 ### Install the local plugin
@@ -17,7 +17,7 @@ asdf plugin remove flyway
 asdf plugin add flyway "$(pwd)"  # must be the asdf-flyway git directory
 ```
 
-> Important: If you add new files or modify existing ones, you must reinstall the plugin with steps above to sync changes.
+> Note: `asdf plugin add` only copies **committed** files. After making changes, commit them and reinstall the plugin with steps above to sync changes.
 
 ## Testing
 
