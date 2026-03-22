@@ -52,6 +52,7 @@ install_tool() {
   if [[ -n "$platform" ]]; then
     filename="${basefile}-${platform}.tar.gz"
   else
+    echo "NOTE: No native Flyway binary for ${os}/${arch}. Using the generic (Java) distribution."
     filename="${basefile}.tar.gz"
   fi
   tempfile="${tempdir}/${filename}"
