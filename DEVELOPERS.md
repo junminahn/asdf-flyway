@@ -1,4 +1,10 @@
-# Developer Guide
+# Developer Guide <!-- omit in toc -->
+
+- [Testing in Development](#testing-in-development)
+  - [Clone the repository](#clone-the-repository)
+  - [Install the local plugin](#install-the-local-plugin)
+  - [Testing](#testing)
+- [Reverting to Official Plugin](#reverting-to-official-plugin)
 
 ## Testing in Development
 
@@ -19,7 +25,7 @@ asdf plugin add flyway "$(pwd)"  # must be the asdf-flyway git directory
 
 > Note: `asdf plugin add` only copies **committed** files. After making changes, commit them and reinstall the plugin with steps above to sync changes.
 
-## Testing
+### Testing
 
 Test at least one version from each download source:
 
