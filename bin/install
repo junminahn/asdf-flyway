@@ -8,43 +8,64 @@ pwd="$(dirname "$0")"
 
 # shellcheck disable=SC1091
 source "$pwd/../lib/constants.bash"
+# shellcheck disable=SC1091
+source "$pwd/../lib/versions.bash"
 
 install_tool() {
   local version="$1"
   local install_path="$2"
   local bin_install_path="$install_path/bin"
   local os=""
-  local fileext=".tar.gz"
-  local basedir="$RELEASES_DIRECTORY$version/"
+  local arch=""
+  local platform=""
   local basefile="flyway-commandline-$version"
-  local tempdir=""
+  local base_url=""
   local filename=""
   local tempfile=""
-  local download_url=""
 
-  os=$(uname -s) #Linux | Darwin
+  os=$(uname -s)
+  arch=$(uname -m)
 
   if [[ "$os" == "Darwin" ]]; then
-    filename="$basefile-macosx-x64$fileext"
-    tempdir=$(mktemp -dt asdf-flyway.XXXX)
+    if [[ "$arch" == "arm64" ]]; then
+      platform="macosx-arm64"
+    else
+      platform="macosx-x64"
+    fi
   else
-    filename="$basefile-linux-x64$fileext"
-    tempdir=$(mktemp -d asdf-flyway.XXXX)
+    if [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then
+      platform=""
+    else
+      platform="linux-x64"
+    fi
   fi
 
-  if ! curl -I "$basedir$filename" >/dev/null 2>&1 || curl -s -I -o /tmp/curl_output "$basedir$filename" && ! grep -q '^HTTP/.* 200' /tmp/curl_output; then
-    filename="$basefile$fileext"
+  tempdir=$(mktemp -dt asdf-flyway.XXXX)
+  trap 'rm -rf "$tempdir"' EXIT
+
+  if compare_versions "$version" "$FLYWAY_MAVEN_CUTOFF"; then
+    base_url="$RELEASES_DIRECTORY$version/"
+  else
+    base_url="$GITHUB_RELEASES_BASE/flyway-$version/"
   fi
 
-  download_url="$basedir$filename"
+  if [[ -n "$platform" ]]; then
+    filename="${basefile}-${platform}.tar.gz"
+  else
+    echo "NOTE: No native Flyway binary for ${os}/${arch}. Using the generic (Java) distribution."
+    filename="${basefile}.tar.gz"
+  fi
   tempfile="${tempdir}/${filename}"
 
-  echo "download_url: $download_url"
+  echo "download_url: $base_url$filename"
 
-  curl -L "$download_url" -o "$tempfile"
+  if ! curl -sL -o /dev/null -w "%{http_code}" "$base_url$filename" | grep -q "200"; then
+    filename="${basefile}.tar.gz"
+  fi
+
+  curl -fL "$base_url$filename" -o "$tempfile"
   mkdir -p "$bin_install_path"
   tar zxf "$tempfile" -C "$bin_install_path" --strip-components=1 || exit 1
-  rm -rf "$tempdir"
 }
 
 install_tool "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
